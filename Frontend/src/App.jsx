@@ -26,7 +26,7 @@ function App() {
         <div>
           <button
           onClick={async ()=>{
-            const response = await fetch("http://localhost:5000/shorten", {
+            const response = await fetch(`${import.meta.env.VITE_API_URL}shorten`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -34,7 +34,7 @@ function App() {
                 body: JSON.stringify({ originalUrl: longUrl })
             });
             const data = await response.json();
-            setshortUrl(`http://localhost:5000/${data.testcode}`);
+            setshortUrl(`${import.meta.env.VITE_API_URL}${data.testcode}`);
           }}
           >
             generate short url
