@@ -5,7 +5,14 @@ import { nanoid } from 'nanoid'
 import dotenv from 'dotenv'
 import connectDB from "./db.js";
 import { Link } from "./models/Links.js";
+import {rateLimit} from 'express-rate-limit'
+
 dotenv.config();
+
+const limiter = rateLimit({
+    windowMs : 60*1000,
+    limit : 10
+})
 
 const app = express()
 
@@ -14,7 +21,7 @@ app.use(cors());
 
 connectDB()
 
-app.post('/shorten',  async (req, res) => {
+app.post('/shorten', limiter,  async (req, res) => {
     const { originalUrl } = req.body;
     console.log(originalUrl);
     const testcode = nanoid(10);
