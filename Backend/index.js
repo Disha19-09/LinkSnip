@@ -22,19 +22,34 @@ app.use(cors());
 connectDB()
 
 app.post('/shorten', limiter,  async (req, res) => {
-    const { originalUrl } = req.body;
-    console.log(originalUrl);
-    const testcode = nanoid(10);
-    console.log(testcode);
-    await Link.create({code: testcode, longUrl: originalUrl})
-    res.json({ message: "Got it", originalUrl , testcode });
+    try {
+        const { originalUrl } = req.body;
+        console.log(originalUrl);
+        const link = await Link.findOne({longUrl: originalUrl});
+        if(link){
+            const {longUrl, code} = link;
+            return res.json({message: "Got it",originalUrl: longUrl ,testcode: code });
+        }
+        const testcode = nanoid(10);
+        console.log(testcode);
+        await Link.create({code: testcode, longUrl: originalUrl})
+        res.json({ message: "Got it", originalUrl , testcode });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Something Went Wrong!!"});
+    }
 })
 
 app.get('/:code', async (req,res) => {
-    const { code } = req.params;
-    const link = await Link.findOne({ code: code});
-    if(!link) return res.status(404).json({message: "Link not found"});
-    res.redirect(link.longUrl);
+    try {
+        const { code } = req.params;
+        const link = await Link.findOne({ code: code});
+        if(!link) return res.status(404).json({message: "Link not found"});
+        res.redirect(link.longUrl);
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({message: "Something Went Wrong!!"});
+    }
 })
 
 const PORT = process.env.PORT || 5000;
