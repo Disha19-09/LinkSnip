@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import connectDB from "./db.js";
 import { Link } from "./models/Links.js";
 import {rateLimit} from 'express-rate-limit'
+import  isURL  from "validator/lib/isURL.js";
 
 dotenv.config();
 
@@ -24,6 +25,10 @@ connectDB()
 app.post('/shorten', limiter,  async (req, res) => {
     try {
         const { originalUrl } = req.body;
+        if (!originalUrl || typeof originalUrl !== 'string') {
+            return res.status(400).json({message: "originalUrl is required"});
+        }
+        if(!isURL(originalUrl)) return res.status(400).json({message: "Bad Request!!"})
         console.log(originalUrl);
         const link = await Link.findOne({longUrl: originalUrl});
         if(link){
@@ -55,5 +60,4 @@ app.get('/:code', async (req,res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server running on PORT : ${PORT}`);
-    
 })
