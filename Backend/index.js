@@ -12,7 +12,11 @@ dotenv.config();
 
 const limiter = rateLimit({
     windowMs : 60*1000,
-    limit : 10
+    limit : 10,
+    statusCode : 429,
+    message :{
+        message: "Too many requests!! Please try again later."
+    }
 })
 
 const app = express()
