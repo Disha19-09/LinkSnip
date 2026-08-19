@@ -4,6 +4,7 @@ import cors from 'cors'
 import { nanoid } from 'nanoid'
 import dotenv from 'dotenv'
 import connectDB from "./db.js";
+import connectRedis, {client} from "./redisClient.js";
 import { Link } from "./models/Links.js";
 import {rateLimit} from 'express-rate-limit'
 import  isURL  from "validator/lib/isURL.js";
@@ -25,6 +26,7 @@ app.use(express.json());
 app.use(cors());
 
 connectDB()
+connectRedis()
 
 app.post('/shorten', limiter,  async (req, res) => {
     try {
@@ -52,8 +54,16 @@ app.post('/shorten', limiter,  async (req, res) => {
 app.get('/:code', async (req,res) => {
     try {
         const { code } = req.params;
+        const red = await client.get(code);
+        if(red){
+            console.log("CACHE HIT: Found in Redis! Skipping MongoDB.");
+            res.redirect(red);
+            return;
+        }
+        console.log("CACHE MISS: Querying MongoDB...");
         const link = await Link.findOne({ code: code});
         if(!link) return res.status(404).json({message: "Link not found"});
+        await client.set(code , link.longUrl);
         res.redirect(link.longUrl);
     } catch (error) {
         console.log(error);
