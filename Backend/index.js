@@ -8,6 +8,7 @@ import connectRedis, {client} from "./redisClient.js";
 import { Link } from "./models/Links.js";
 import {rateLimit} from 'express-rate-limit'
 import  isURL  from "validator/lib/isURL.js";
+import { LINK_EXPIRY_SECONDS } from "./constants.js";
 
 dotenv.config();
 
@@ -41,10 +42,10 @@ app.post('/shorten', limiter,  async (req, res) => {
             const {longUrl, code} = link;
             return res.json({message: "Got it",originalUrl: longUrl ,testcode: code });
         }
-        const testcode = nanoid(10);
-        console.log(testcode);
-        await Link.create({code: testcode, longUrl: originalUrl})
-        res.json({ message: "Got it", originalUrl , testcode });
+        const shortcode = nanoid(10);
+        console.log(shortcode);
+        await Link.create({code: shortcode, longUrl: originalUrl})
+        res.json({ message: "Got it", originalUrl , shortcode });
     } catch (error) {
         console.log(error);
         res.status(500).json({message: "Something Went Wrong!!"});
@@ -63,7 +64,7 @@ app.get('/:code', async (req,res) => {
         console.log("CACHE MISS: Querying MongoDB...");
         const link = await Link.findOne({ code: code});
         if(!link) return res.status(404).json({message: "Link not found"});
-        await client.set(code , link.longUrl);
+        await client.set(code , link.longUrl, { EX : LINK_EXPIRY_SECONDS });
         res.redirect(link.longUrl);
     } catch (error) {
         console.log(error);

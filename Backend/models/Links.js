@@ -1,4 +1,5 @@
 import mongoose, {Schema} from "mongoose";
+import { LINK_EXPIRY_SECONDS } from "../constants.js";
 
 const linkSchema = new Schema(
     {
@@ -14,6 +15,11 @@ const linkSchema = new Schema(
             required: true,
             trim: true,
         },
+        expireAt: {
+            type: Date,
+            default: () => new Date(Date.now() +LINK_EXPIRY_SECONDS*1000),
+            index: {expireAfterSeconds: 0}
+        }
     },
     {
         timestamps: true

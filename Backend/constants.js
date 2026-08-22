@@ -1,0 +1,1 @@
+export const LINK_EXPIRY_SECONDS = 30 * 24 * 60 * 60;
