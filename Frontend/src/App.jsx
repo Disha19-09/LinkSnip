@@ -58,7 +58,7 @@ function App() {
                       seterrorMsg(data.message)
                       return
                     }
-                    setshortUrl(`${import.meta.env.VITE_API_URL}${data.testcode}`);
+                    setshortUrl(`${import.meta.env.VITE_API_URL}${data.shortcode}`);
                   } catch (error) {
                     console.log(error);
                     seterrorMsg("Something Went Wrong!!. Please Try Again.")

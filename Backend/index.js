@@ -40,7 +40,7 @@ app.post('/shorten', limiter,  async (req, res) => {
         const link = await Link.findOne({longUrl: originalUrl});
         if(link){
             const {longUrl, code} = link;
-            return res.json({message: "Got it",originalUrl: longUrl ,testcode: code });
+            return res.json({message: "Got it",originalUrl: longUrl ,shortcode: code });
         }
         const shortcode = nanoid(10);
         console.log(shortcode);
